@@ -24,17 +24,19 @@ data1 = pd.read_csv(path_real_wages)
 data2 = pd.read_csv(path_GDP)
 
 class Net(nn.Module):
-    def __init__(self, n_input, n_output):
+    def __init__(self):
         super().__init__()
 
-        self.l1 = nn.Linear(n_input, n_output)
-
-        nn.init.constant_(self.l1.weight, 1.0)
-        nn.init.constant_(self.l1.bias, 1.0)
+        self.l1 = nn.Linear(2, 10)
+        self.l2 = nn.Linear(10, 10)
+        self.l3 = nn.Linear(10, 1)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x1 = self.l1(x)
-        return x1
+        x1 = self.relu(self.l1(x))
+        x2 = self.relu(self.l2(x1))
+        x3 = self.l3(x2)
+        return x3
     
 df = [data1.iloc[index] for index in range(2)]
 df.append(data2.iloc[0])
@@ -52,9 +54,9 @@ Y = Y.view(-1,1)
 print(X)
 print(Y)
 
-n_input = 2
+n_input = 1
 n_output = 1
-net = Net(n_input, n_output)
+net = Net()
 
 criterion = nn.MSELoss()
 
@@ -81,11 +83,39 @@ for epoch in range(num_epochs):
 print(f'초기 손실값: {history[0,1]:.5f}')
 print(f'최종 손실값: {history[-1,1]:.5f}')
 
-print(net.l1.weight)
-print(net.l1.bias)
+print("l1 weight :", net.l1.weight)
+print("l1 bias :",net.l1.bias)
+print("l2 weight :",net.l2.weight)
+print("l2 bias :",net.l2.bias)
+print("l3 weight :",net.l3.weight)
+print("l3 bias :",net.l3.bias)
 
+labels_pred = net(X)
+
+# 3D 그래프 설정
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# 3D 산점도 그리기
+ax.scatter(X[:,0], X[:,1], labels_pred[:,0].data, c='b', marker='o')
+
+# 축 이름 설정
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+
+plt.show()
+"""
+plt.title('은닉층 2개, 활성화 함수 사용')
+plt.scatter(X.data, labels_pred[:,0].data, c='b', label='예측값')
+plt.scatter(X.data, Y.data, c='k', marker='x',label='정답')
+plt.legend()
+plt.show()
+"""
+"""
 plt.plot(history[1:,0], history[1:,1], 'b')
 plt.xlabel('반복 횟수')
 plt.ylabel('손실')
 plt.title('학습 곡선(손실)')
 plt.show()
+"""
