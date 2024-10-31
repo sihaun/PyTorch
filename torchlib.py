@@ -5,14 +5,25 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.simplefilter('ignore')
 
+# GPU, 글씨체 설정(Mac OS)
 if os.name == 'posix':
-    device = torch.device('mps')
-    print(torch.backends.mps.is_available())
+    if torch.backends.mps.is_available():
+       device = torch.device('mps')
+       print("GPU can be available")
+    else:
+        device = torch.device('cpu')
+        print("GPU can NOT be available")
     plt.rcParams['font.family'] = 'AppleGothic'
+# GPU, 글씨체 설정(Windows OS)
 elif os.name == 'nt':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
+    if torch.cuda.is_available():
+       device = torch.device("cuda:0")
+       print("GPU can be available")
+    else:
+        device = torch.device('cpu')
+        print("GPU can NOT be available")
     plt.rcParams['font.family'] = 'Malgun Gothic'
+# (-) 설정
 plt.rcParams['axes.unicode_minus'] = 'False'
 
 # 손실 계산용
